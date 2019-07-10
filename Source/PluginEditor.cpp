@@ -31,7 +31,6 @@ DistortionAudioProcessorEditor::DistortionAudioProcessorEditor (DistortionAudioP
     getLookAndFeel().setColour (PopupMenu::textColourId, ORANGE);
 
     tightButton.setClickingTogglesState(true);
-    //tightButton.setButtonText("TIGHT");
     tightAttachment.reset(new ButtonAttachment (valueTreeState, "tight",
                 tightButton));
 
@@ -54,8 +53,9 @@ DistortionAudioProcessorEditor::DistortionAudioProcessorEditor (DistortionAudioP
     bass.setPopupDisplayEnabled(false, false, nullptr);
     bassAttachment.reset (new SliderAttachment (valueTreeState, "bass",
                 bass));
+
     //the bass slider should be logarithmic
-    //0.05 is roughly halfway between 1 and 0 when looking at the freqeuncy
+    //0.05 is roughly halfway between 1 and 0 when looking at the frequency
     //response on a log scale
     bass.setSkewFactorFromMidPoint(0.05);
     bass.setRange(bass.getRange(), 0.00001);
@@ -87,7 +87,7 @@ DistortionAudioProcessorEditor::DistortionAudioProcessorEditor (DistortionAudioP
     addAndMakeVisible(&treble);
     addAndMakeVisible(&volume);
 
-    titleLabel    .setText("ASSIGNMENT 2: HM-2 SIMULATION", dontSendNotification);
+    titleLabel    .setText("SWEDISH CHAINSAW", dontSendNotification);
     titleLabel    .setJustificationType(Justification::centred);
     titleLabel    .setFont(Font(20, Font::bold));
     tightLabel    .setText("TIGHT", dontSendNotification);

@@ -13,6 +13,6 @@ float waveshape(float x) {
     }
     */
 
-    y = tanh(x);
+    y = std::tanh(x);
     return y;
 }

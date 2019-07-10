@@ -172,9 +172,10 @@ void DistortionAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     pedalLowpassFilter.coefficients = dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, 7000);
 
     ampInputFilter.prepare(spec);
-    //amp input filter, basicaly the low pass filter from a tube screamer,
+    //amp input filter, basicaly the high-pass filter from a tube screamer,
     //which is also used in the Marshall valvestate 8100
-    ampInputFilter.coefficients = dsp::IIR::Coefficients<float>::makeFirstOrderHighPass(sampleRate, 600);
+    ampInputFilter.coefficients =
+        dsp::IIR::Coefficients<float>::makeFirstOrderHighPass(sampleRate, 600);
     hm2Filter.prepare(spec);
     fmvFilter.prepare(spec);
 
@@ -249,7 +250,8 @@ void DistortionAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuf
 
     //oversample again to apply the amp's distortion
     oversampledBlock = ampOversampling.processSamplesUp(block);
-    ampWaveshaper.process(oversampledContext);
+    dsp::ProcessContextReplacing<float> oversampledContext2 (oversampledBlock);
+    ampWaveshaper.process(oversampledContext2);
     ampOversampling.processSamplesDown(block);
 
     //apply amp's FMV tonestack filter
