@@ -25,6 +25,16 @@
 
 //==============================================================================
 DistortionAudioProcessor::DistortionAudioProcessor() :
+#ifndef JucePlugin_PreferredChannelConfigurations
+      AudioProcessor (BusesProperties()
+                     #if ! JucePlugin_IsMidiEffect
+                      #if ! JucePlugin_IsSynth
+                       .withInput  ("Input",  AudioChannelSet::stereo(), true)
+                      #endif
+                       .withOutput ("Output", AudioChannelSet::stereo(), true)
+                     #endif
+                       ),
+#endif
       parameters (*this, nullptr, Identifier ("parameters"), 
               {
               std::make_unique<AudioParameterBool> ("tight",
@@ -65,17 +75,6 @@ DistortionAudioProcessor::DistortionAudioProcessor() :
               }),
       pedalOversampling (4, 4, dsp::Oversampling<float>::FilterType::filterHalfBandPolyphaseIIR),
       ampOversampling   (4, 4, dsp::Oversampling<float>::FilterType::filterHalfBandPolyphaseIIR)
-
-#ifndef JucePlugin_PreferredChannelConfigurations
-      ,AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", AudioChannelSet::stereo(), true)
-                     #endif
-                       )
-#endif
 {
     pedalWaveshaper.functionToUse = waveshape;
     ampWaveshaper.functionToUse = waveshape;
@@ -148,15 +147,19 @@ int DistortionAudioProcessor::getCurrentProgram()
 
 void DistortionAudioProcessor::setCurrentProgram (int index)
 {
+    (void)index;
 }
 
 const String DistortionAudioProcessor::getProgramName (int index)
 {
+    (void)index;
     return {};
 }
 
 void DistortionAudioProcessor::changeProgramName (int index, const String& newName)
 {
+    (void)index;
+    (void)newName;
 }
 
 //==============================================================================
@@ -167,11 +170,11 @@ void DistortionAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     dsp::ProcessSpec spec;
 
     spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = getTotalNumOutputChannels();
+    spec.maximumBlockSize = (juce::uint32)samplesPerBlock;
+    spec.numChannels = (juce::uint32)getTotalNumOutputChannels();
 
-    pedalOversampling.initProcessing(samplesPerBlock);
-    ampOversampling.initProcessing(samplesPerBlock);
+    pedalOversampling.initProcessing((size_t)samplesPerBlock);
+    ampOversampling.initProcessing((size_t)samplesPerBlock);
 
     pedalWaveshaper.prepare(spec);
     ampWaveshaper.prepare(spec);
@@ -235,6 +238,7 @@ bool DistortionAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void DistortionAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+    (void)midiMessages;
     dsp::AudioBlock<float> block (buffer);
     dsp::ProcessContextReplacing<float> normalContext (block);
 
@@ -326,12 +330,11 @@ void DistortionAudioProcessor::setStateInformation (const void* data, int sizeIn
     }
 }
 
-//I know this argument is ignored but I'm not going to change it with less than
-//1 hour left to the deadline
-//The editor sets speakerFile to the new file so this still works
 void DistortionAudioProcessor::setSpeakerIR(File f)
 {
-    speakerConvolution.loadImpulseResponse(*speakerFile, false, false, 0);
+    speakerConvolution.loadImpulseResponse(f,
+            juce::dsp::Convolution::Stereo::no,
+            juce::dsp::Convolution::Trim::no, 0);
 }
 
 //==============================================================================

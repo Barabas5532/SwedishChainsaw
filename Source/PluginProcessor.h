@@ -41,6 +41,7 @@ public:
    #endif
 
     void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
+    using AudioProcessor::processBlock;
 
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
@@ -71,13 +72,13 @@ public:
 private:
     AudioProcessorValueTreeState parameters;
 
-    float* tightParameter;
-    float* pedalGainParameter;
-    float* ampGainParameter;
-    float* bassParameter;
-    float* middleParameter;
-    float* trebleParameter;
-    float* volumeParameter;
+    std::atomic<float>* tightParameter;
+    std::atomic<float>* pedalGainParameter;
+    std::atomic<float>* ampGainParameter;
+    std::atomic<float>* bassParameter;
+    std::atomic<float>* middleParameter;
+    std::atomic<float>* trebleParameter;
+    std::atomic<float>* volumeParameter;
 
     dsp::Oversampling<float> pedalOversampling;
     dsp::Oversampling<float> ampOversampling;
